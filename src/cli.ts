@@ -25,7 +25,7 @@ program
   .description(
     "Convert files and entire projects into optimized context for LLMs (Claude, ChatGPT, Gemini).",
   )
-  .version("0.1.0")
+  .version("0.1.1")
   .argument("<input>", "File or directory to convert into LLM context")
   .option("-o, --output <dir>", "Output directory", "context-output")
   .option(

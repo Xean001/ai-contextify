@@ -1,6 +1,6 @@
 {
   "name": "ai-contextify",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Convert files and entire projects into optimized context for LLMs like Claude, ChatGPT and Gemini.",
   "keywords": [
     "ai",
@@ -16,7 +16,7 @@
     "docx"
   ],
   "license": "MIT",
-  "author": "ai-contextify contributors",
+  "author": "xean._. <jean24pain@gmail.com>",
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -37,7 +37,7 @@
     "build": "tsc -p tsconfig.json && chmod +x dist/cli.js || true",
     "start": "node dist/cli.js",
     "clean": "rimraf dist",
-    "prepublishOnly": "pnpm clean && pnpm build"
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "dependencies": {
     "chalk": "^5.3.0",
