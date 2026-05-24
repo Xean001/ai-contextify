@@ -1,0 +1,7 @@
+Project notes
+=============
+
+- ai-contextify scans recursively
+- node_modules, dist, build, .git are excluded by default
+- Use --exclude to add more patterns
+- Use --chunk 6000 to split for smaller context windows

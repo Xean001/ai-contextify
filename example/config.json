@@ -1,0 +1,5 @@
+{
+  "name": "example",
+  "description": "Sample data so the CLI has something to chew on.",
+  "tags": ["demo", "context", "llm"]
+}

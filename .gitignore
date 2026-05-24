@@ -1,0 +1,15 @@
+node_modules
+dist
+.DS_Store
+.env
+.env.*
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+coverage
+.nyc_output
+context-output
+.idea
+.vscode
+*.tsbuildinfo

@@ -1,0 +1,62 @@
+{
+  "name": "ai-contextify",
+  "version": "0.1.0",
+  "description": "Convert files and entire projects into optimized context for LLMs like Claude, ChatGPT and Gemini.",
+  "keywords": [
+    "ai",
+    "llm",
+    "context",
+    "claude",
+    "chatgpt",
+    "gemini",
+    "rag",
+    "cli",
+    "markdown",
+    "pdf",
+    "docx"
+  ],
+  "license": "MIT",
+  "author": "ai-contextify contributors",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "ai-contextify": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "tsx src/cli.ts",
+    "build": "tsc -p tsconfig.json && chmod +x dist/cli.js || true",
+    "start": "node dist/cli.js",
+    "clean": "rimraf dist",
+    "prepublishOnly": "pnpm clean && pnpm build"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "fast-glob": "^3.3.2",
+    "fs-extra": "^11.2.0",
+    "mammoth": "^1.8.0",
+    "ora": "^8.1.0",
+    "pdf-parse": "^1.1.1",
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.0",
+    "strip-markdown": "^6.0.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^20.14.0",
+    "@types/pdf-parse": "^1.1.4",
+    "rimraf": "^5.0.7",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0"
+  }
+}
