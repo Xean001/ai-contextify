@@ -37,10 +37,10 @@ context-output/
 
 ## Instalación
 
-Úsalo directamente sin instalar:
+Úsalo directamente sin instalar en la carpeta con este comando:
 
 ```bash
-npx ai-contextify ./docs
+npx ai-contextify .
 ```
 
 O instálalo globalmente:
@@ -57,6 +57,12 @@ ai-contextify ./docs
 ```
 ai-contextify <input> [opciones]
 ```
+
+> 💡 **Tip:** el argumento `<input>` es obligatorio. Usa `.` para escanear la carpeta donde estás parado:
+>
+> ```bash
+> ai-contextify .
+> ```
 
 | Opción                  | Descripción                                                                          | Por defecto        |
 | ----------------------- | ------------------------------------------------------------------------------------ | ------------------ |
@@ -173,20 +179,20 @@ Un único documento Markdown que:
 ## Desarrollo
 
 ```bash
-pnpm install
-pnpm build
+npm install
+npm run build
 npm link
 ai-contextify ./example
 ```
 
-Scripts:
+Scripts (funcionan con `npm`, `pnpm` o `yarn`):
 
-| Script         | Qué hace                                  |
-| -------------- | ----------------------------------------- |
-| `pnpm dev`     | Ejecuta la CLI desde el código con `tsx` |
-| `pnpm build`   | Compila TypeScript a `dist/`             |
-| `pnpm start`   | Ejecuta la CLI compilada                 |
-| `pnpm clean`   | Elimina `dist/`                          |
+| Script           | Qué hace                                  |
+| ---------------- | ----------------------------------------- |
+| `npm run dev`    | Ejecuta la CLI desde el código con `tsx` |
+| `npm run build`  | Compila TypeScript a `dist/`             |
+| `npm start`      | Ejecuta la CLI compilada                 |
+| `npm run clean`  | Elimina `dist/`                          |
 
 Estructura del proyecto:
 
