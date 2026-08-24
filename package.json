@@ -1,6 +1,6 @@
 {
   "name": "ai-contextify",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Convert files and entire projects into optimized context for LLMs like Claude, ChatGPT and Gemini.",
   "keywords": [
     "ai",
