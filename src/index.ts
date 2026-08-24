@@ -9,6 +9,7 @@ import { exportMetadata } from "./exporters/metadata.js";
 import { exportClaudeXml } from "./exporters/xml.js";
 import { exportChunks } from "./exporters/chunks.js";
 import { estimateTokens } from "./utils/tokens.js";
+import { formatBytes } from "./utils/bytes.js";
 import { detectLanguage } from "./utils/language.js";
 import { logger } from "./utils/logger.js";
 
@@ -22,14 +23,33 @@ export async function build(options: BuildOptions): Promise<BuildSummary> {
     color: "cyan",
   }).start();
 
-  const scanned = await scanDirectory(absoluteInput, {
+  const { files: scanned, skipped } = await scanDirectory(absoluteInput, {
     include: options.include,
     exclude: options.exclude,
     followSymlinks: options.followSymlinks,
     maxFileSizeBytes: options.maxFileSizeBytes,
   });
 
-  scanSpinner.succeed(`Found ${scanned.length} file(s)`);
+  const tooLarge = skipped.filter((f) => f.reason === "too-large");
+  scanSpinner.succeed(
+    `Found ${scanned.length} file(s)` +
+      (skipped.length > 0 ? ` (${skipped.length} skipped)` : ""),
+  );
+
+  if (tooLarge.length > 0) {
+    logger.warn(
+      `${tooLarge.length} file(s) skipped for exceeding --max-size (${formatBytes(
+        options.maxFileSizeBytes ?? 10 * 1024 * 1024,
+      )}):`,
+    );
+    for (const f of tooLarge.slice(0, 10)) {
+      logger.dim(`  - ${f.relativePath} (${formatBytes(f.bytes)})`);
+    }
+    if (tooLarge.length > 10) {
+      logger.dim(`  …and ${tooLarge.length - 10} more (see metadata.json)`);
+    }
+    logger.dim("  Raise the limit with --max-size <bytes> to include them.");
+  }
 
   if (scanned.length === 0) {
     logger.warn("No files matched the scan filters. Nothing to do.");
@@ -131,6 +151,13 @@ export async function build(options: BuildOptions): Promise<BuildSummary> {
       bytes: f.bytes,
       tokens: f.estimatedTokens,
       parseError: f.parseError,
+      empty: !f.parseError && f.content.trim().length === 0,
+    })),
+    skipped: skipped.map((f) => ({
+      path: f.relativePath,
+      bytes: f.bytes,
+      reason: f.reason,
+      limitBytes: f.limitBytes,
     })),
     artifacts,
   };

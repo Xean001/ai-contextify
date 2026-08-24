@@ -36,22 +36,43 @@ export interface ScannedFile {
   bytes: number;
 }
 
+export type SkipReason = "too-large" | "empty";
+
+export interface SkippedFile {
+  absolutePath: string;
+  relativePath: string;
+  bytes: number;
+  reason: SkipReason;
+  /** Only set when reason is "too-large". */
+  limitBytes?: number;
+}
+
+export interface ScanResult {
+  files: ScannedFile[];
+  skipped: SkippedFile[];
+}
+
 export async function scanDirectory(
   rootDir: string,
   opts: ScannerOptions = {},
-): Promise<ScannedFile[]> {
+): Promise<ScanResult> {
   const absoluteRoot = path.resolve(rootDir);
   const stat = await fs.stat(absoluteRoot).catch(() => null);
   if (!stat) throw new Error(`Input path does not exist: ${rootDir}`);
 
+  // A file passed explicitly is always parsed: the size limit exists to keep
+  // directory scans from swallowing huge binaries, not to second-guess the user.
   if (stat.isFile()) {
-    return [
-      {
-        absolutePath: absoluteRoot,
-        relativePath: path.basename(absoluteRoot),
-        bytes: stat.size,
-      },
-    ];
+    return {
+      files: [
+        {
+          absolutePath: absoluteRoot,
+          relativePath: path.basename(absoluteRoot),
+          bytes: stat.size,
+        },
+      ],
+      skipped: [],
+    };
   }
 
   const include = opts.include?.length ? opts.include : DEFAULT_INCLUDES;
@@ -70,19 +91,41 @@ export async function scanDirectory(
 
   const maxBytes = opts.maxFileSizeBytes ?? 10 * 1024 * 1024;
   const files: ScannedFile[] = [];
+  const skipped: SkippedFile[] = [];
 
   for (const entry of entries) {
     const size = entry.stats?.size ?? 0;
-    if (size === 0) continue;
-    if (size > maxBytes) continue;
+    const relativePath = path.relative(absoluteRoot, entry.path);
+
+    if (size === 0) {
+      skipped.push({
+        absolutePath: entry.path,
+        relativePath,
+        bytes: size,
+        reason: "empty",
+      });
+      continue;
+    }
+
+    if (size > maxBytes) {
+      skipped.push({
+        absolutePath: entry.path,
+        relativePath,
+        bytes: size,
+        reason: "too-large",
+        limitBytes: maxBytes,
+      });
+      continue;
+    }
 
     files.push({
       absolutePath: entry.path,
-      relativePath: path.relative(absoluteRoot, entry.path),
+      relativePath,
       bytes: size,
     });
   }
 
   files.sort((a, b) => a.relativePath.localeCompare(b.relativePath));
-  return files;
+  skipped.sort((a, b) => a.relativePath.localeCompare(b.relativePath));
+  return { files, skipped };
 }

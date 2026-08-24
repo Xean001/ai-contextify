@@ -1,3 +1,7 @@
+import type { SkipReason } from "./scanner/index.js";
+
+export type { SkipReason };
+
 export type FileKind =
   | "pdf"
   | "docx"
@@ -50,6 +54,15 @@ export interface BuildSummary {
     bytes: number;
     tokens: number;
     parseError?: string;
+    /** Parsed without error, but produced no text (e.g. a scanned PDF). */
+    empty?: boolean;
+  }>;
+  /** Files found by the scan but never parsed, with the reason why. */
+  skipped: Array<{
+    path: string;
+    bytes: number;
+    reason: SkipReason;
+    limitBytes?: number;
   }>;
   artifacts: {
     combined?: string;

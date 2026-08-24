@@ -38,7 +38,7 @@ program
   )
   .option(
     "--max-size <bytes>",
-    "Skip files larger than this many bytes",
+    "Skip files larger than this many bytes (directory scans only)",
     String(10 * 1024 * 1024),
   )
   .option(
@@ -83,6 +83,9 @@ program
       console.log("");
       logger.success(chalk.bold("Done!"));
       logger.dim(`  Files:     ${summary.fileCount}`);
+      if (summary.skipped.length > 0) {
+        logger.dim(`  Skipped:   ${summary.skipped.length}`);
+      }
       logger.dim(`  Bytes:     ${summary.totalBytes.toLocaleString()}`);
       logger.dim(`  Tokens:    ~${formatTokenCount(summary.totalTokens)}`);
       logger.dim(`  Duration:  ${(summary.durationMs / 1000).toFixed(2)}s`);
@@ -110,6 +113,23 @@ program
         }
         if (errored.length > 10) {
           logger.dim(`  …and ${errored.length - 10} more (see metadata.json)`);
+        }
+      }
+
+      const empty = summary.files.filter((f) => f.empty);
+      if (empty.length > 0) {
+        console.log("");
+        logger.warn(`${empty.length} file(s) parsed but yielded no text:`);
+        for (const f of empty.slice(0, 10)) {
+          logger.dim(`  - ${f.path} (${f.kind})`);
+        }
+        if (empty.length > 10) {
+          logger.dim(`  …and ${empty.length - 10} more (see metadata.json)`);
+        }
+        if (empty.some((f) => f.kind === "pdf")) {
+          logger.dim(
+            "  Scanned PDFs have no text layer — they need OCR, which this CLI does not do.",
+          );
         }
       }
     } catch (err) {
