@@ -69,13 +69,33 @@ ai-contextify <input> [opciones]
 | `-o, --output <dir>`    | Directorio de salida                                                                 | `context-output`   |
 | `-i, --include <globs…>`| Patrones glob a incluir                                                              | todo               |
 | `-e, --exclude <globs…>`| Patrones glob adicionales a excluir (los defaults siempre se aplican)                | —                  |
-| `--max-size <bytes>`    | Omite archivos más grandes que esta cantidad de bytes                                | `10485760` (10 MB) |
+| `--max-size <bytes>`    | Omite archivos más grandes que esta cantidad de bytes (solo al escanear carpetas)    | `10485760` (10 MB) |
 | `--chunk <tokens>`      | Emite también `chunks/chunk-N.md` de aproximadamente esta cantidad de tokens         | desactivado        |
 | `--xml`                 | Emite también `context.xml` en el formato `<documents>` de Claude                    | desactivado        |
 | `--title <título>`      | Título usado en `combined.md`                                                        | derivado del input |
 | `--follow-symlinks`     | Sigue enlaces simbólicos al escanear                                                 | `false`            |
 | `-V, --version`         | Muestra la versión                                                                   |                    |
 | `-h, --help`            | Muestra la ayuda                                                                     |                    |
+
+### Archivos omitidos
+
+Al escanear una carpeta se omiten los archivos vacíos y los que superan `--max-size`. La CLI ahora lo avisa y los lista, y quedan registrados en `metadata.json` bajo `skipped` con su motivo:
+
+```bash
+$ ai-contextify ./docs
+✔ Found 8 file(s) (1 skipped)
+⚠ 1 file(s) skipped for exceeding --max-size (10.0 MB):
+  - libro-escaneado.pdf (10.7 MB)
+  Raise the limit with --max-size <bytes> to include them.
+```
+
+Para incluirlos, sube el límite (`--max-size 52428800`) o apunta directo al archivo — un archivo pasado como input siempre se procesa, sin importar su tamaño:
+
+```bash
+ai-contextify ./docs/libro.pdf
+```
+
+Los archivos que sí se parsean pero no producen texto (por ejemplo un PDF escaneado, sin capa de texto) se marcan con `"empty": true` en `metadata.json` y también se avisan al final. Esos necesitan OCR, que esta CLI no hace.
 
 ### Ejemplos
 
@@ -147,6 +167,9 @@ Un único documento Markdown que:
   "durationMs": 482,
   "files": [
     { "path": "README.md", "kind": "markdown", "bytes": 4321, "tokens": 1080 }
+  ],
+  "skipped": [
+    { "path": "libro.pdf", "bytes": 11216488, "reason": "too-large", "limitBytes": 10485760 }
   ],
   "artifacts": {
     "combined": "/ruta/abs/a/context-output/combined.md",
